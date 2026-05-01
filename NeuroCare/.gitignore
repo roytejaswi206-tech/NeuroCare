@@ -1,0 +1,33 @@
+# Node modules
+node_modules/
+frontend-ui/node_modules/
+
+# Python artifacts
+.env
+backend/.env
+__pycache__/
+**/__pycache__/
+*.pyc
+
+# Build outputs
+dist/
+build/
+frontend-ui/dist/
+frontend-ui/build/
+
+# Python virtual environment
+venv/
+backend/venv/
+ENV/
+.env.local
+
+# Database files
+*.db
+*.sqlite
+backend/instance/
+backend/logs/
+
+# Misc
+.DS_Store
+.vscode/
+.idea/
