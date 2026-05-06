@@ -1,18 +1,15 @@
 import React from 'react';
 
-const Loader = ({ size = 'medium', text = '' }) => {
-  const sizeClasses = {
-    small: 'w-6 h-6',
-    medium: 'w-10 h-10',
-    large: 'w-16 h-16',
-  };
+const Loader = ({ size = 'normal', text = 'Loading...' }) => {
+  const sizeClass = size === 'small' ? 'w-6 h-6' : 'w-10 h-10';
   
   return (
-    <div className="flex flex-col items-center justify-center p-4">
-      <div className={`loader ${sizeClasses[size]}`}></div>
-      {text && <p className="mt-4 text-gray-400">{text}</p>}
+    <div className={`flex items-center gap-3 ${size === 'small' ? 'text-sm' : ''}`}>
+      <div className={`${sizeClass} loader border-4 border-white/20 border-t-blue-400 rounded-full animate-spin shadow-lg`}></div>
+      <span className="font-medium">{text}</span>
     </div>
   );
 };
 
 export default Loader;
+

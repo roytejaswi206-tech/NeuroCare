@@ -12,6 +12,7 @@ class Doctor(db.Model):
     timing = db.Column(db.String(100), nullable=True)  # e.g., "9 AM - 5 PM"
     fees = db.Column(db.Float, default=0.0)
     available = db.Column(db.Boolean, default=True)
+    approved = db.Column(db.Boolean, default=False)
     phone = db.Column(db.String(50), nullable=True)
     
     def to_dict(self):
@@ -25,5 +26,6 @@ class Doctor(db.Model):
             'timing': self.timing,
             'fees': self.fees,
             'available': self.available,
-            'phone': self.phone
+            'approved': self.approved,
+            'phone': self.phone,
         }

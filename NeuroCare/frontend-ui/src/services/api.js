@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://127.0.0.1:5000/api';
+const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
 
 // Create axios instance
 const api = axios.create({
@@ -73,6 +73,43 @@ export const hospitalsAPI = {
   getHospitalDoctors: (id) => api.get(`/hospitals/${id}/doctors`),
   getAllDoctors: (params) => api.get('/hospitals/doctors', { params }),
   searchHospitals: (query) => api.get('/hospitals/search', { params: { q: query } }),
+  createPanicAlert: (data) => api.post('/hospitals/panic', data),
+};
+
+// Appointments API
+export const appointmentsAPI = {
+  getAppointments: () => api.get('/appointments'),
+  createAppointment: (data) => api.post('/appointments', data),
+  updateAppointment: (appointmentId, data) => api.patch(`/appointments/${appointmentId}`, data),
+};
+
+// Places API
+export const placesAPI = {
+  nearby: (params) => api.get('/places/nearby', { params }),
+  savePlace: (data) => api.post('/places/save', data),
+  getSaved: () => api.get('/places/saved'),
+  deleteFavorite: (id) => api.delete(`/places/saved/${id}`),
+  panic: (data) => api.post('/places/panic', data),
+  getFavorites: () => api.get('/places/saved'),
+};
+
+// Admin API
+export const adminAPI = {
+  getStats: () => api.get('/admin/stats'),
+  getUsers: () => api.get('/admin/users'),
+  updateUser: (id, data) => api.patch(`/admin/users/${id}`, data),
+  deleteUser: (id) => api.delete(`/admin/users/${id}`),
+  getHospitals: () => api.get('/admin/hospitals'),
+  createHospital: (data) => api.post('/admin/hospitals', data),
+  updateHospital: (id, data) => api.patch(`/admin/hospitals/${id}`, data),
+  deleteHospital: (id) => api.delete(`/admin/hospitals/${id}`),
+  getDoctors: () => api.get('/admin/doctors'),
+  createDoctor: (data) => api.post('/admin/doctors', data),
+  updateDoctor: (id, data) => api.patch(`/admin/doctors/${id}`, data),
+  deleteDoctor: (id) => api.delete(`/admin/doctors/${id}`),
+  getPanicAlerts: () => api.get('/admin/panic-alerts'),
+  getSettings: () => api.get('/admin/settings'),
+  updateSettings: (data) => api.patch('/admin/settings', data),
 };
 
 export default api;

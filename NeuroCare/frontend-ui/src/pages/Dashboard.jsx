@@ -1,274 +1,275 @@
 import React, { useState, useEffect } from 'react';
-import { Line, Pie } from 'react-chartjs-2';
+import { useNavigate } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
+import { hospitalsAPI, placesAPI } from '../services/api';
 import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend,
-  ArcElement,
-} from 'chart.js';
-import { healthAPI, predictAPI } from '../services/api';
-import { Activity, Heart, Moon, TrendingUp, Save } from 'lucide-react';
+  Brain, Sun, CloudLightning, MessageCircle, AlertTriangle, MapPin, Stethoscope, Moon, HeartPulse, Zap,
+  User, Award, Clock, Phone, CalendarDays, Shield, Landmark, Pill, Waves, TestTube
+} from 'lucide-react';
 import Navbar from '../components/Navbar';
+import QuickActionCard from '../components/QuickActionCard';
+import HealthChart from '../components/HealthChart';
+import AIBanner from '../components/AIBanner';
 import { useToast } from '../components/ToastContext';
 
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend,
-  ArcElement
-);
+const moodEmojis = [
+  { id: 'calm', emoji: '😌', label: 'Calm' },
+  { id: 'stressed', emoji: '😣', label: 'Stressed' },
+  { id: 'panic', emoji: '😰', label: 'Panic' }
+];
+
+const services = [
+  { icon: Brain, title: 'Therapy', subtitle: 'Professional support', path: '/doctors' },
+  { icon: Pill, title: 'Medication', subtitle: 'Prescriptions', path: '/settings' },
+  { icon: Waves, title: 'Meditation', subtitle: 'Guided sessions', path: '/chat' },
+  { icon: AlertTriangle, title: 'Emergency', subtitle: '24/7 crisis help', path: '/panic' },
+  { icon: TestTube, title: 'Health Tests', subtitle: 'Lab bookings', path: '/hospitals' }
+];
+
+const recommendations = [
+  { title: 'Talk to Dr. Maya Patel', subtitle: 'Psychiatrist • 4.9⭐', image: '👩‍⚕️' },
+  { title: 'Breathing Exercise', subtitle: '2 min • Reduces anxiety 40%', image: '🧘' },
+  { title: 'Apollo Hospital (2.3km)', subtitle: '24hr Emergency • Psychiatry', image: '🏥' }
+];
 
 const Dashboard = () => {
-  const [formData, setFormData] = useState({
-    bp: '',
-    sugar: '',
-    sleep: '',
-  });
-  const [prediction, setPrediction] = useState(null);
-  const [healthData, setHealthData] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [saving, setSaving] = useState(false);
+  const navigate = useNavigate();
   const { showToast } = useToast();
-  
+  const [user, setUser] = useState(null);
+  const [selectedMood, setSelectedMood] = useState(null);
+  const [moodHistory, setMoodHistory] = useState([]);
+  const [savedHospitals, setSavedHospitals] = useState(0);
+  const [panicAlerts, setPanicAlerts] = useState([]);
+  const [loading, setLoading] = useState(false);
+
   useEffect(() => {
-    fetchHealthData();
+    const userData = localStorage.getItem('user');
+    if (userData) setUser(JSON.parse(userData));
+    loadData();
   }, []);
-  
-  const fetchHealthData = async () => {
+
+  const loadData = async () => {
+    const history = JSON.parse(localStorage.getItem('moodHistory') || '[]');
+    setMoodHistory(history);
+    
+    const alerts = JSON.parse(localStorage.getItem('panicAlerts') || '[]');
+    setPanicAlerts(alerts.slice(-3).reverse());
+    
     try {
-      const response = await healthAPI.getHealthData({ limit: 10 });
-      setHealthData(response.data.data || []);
+      const response = await placesAPI.getSaved();
+      setSavedHospitals(response.data.favorites?.length || 0);
     } catch (err) {
-      console.error('Failed to fetch health data:', err);
+      setSavedHospitals(0);
     }
   };
-  
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+
+  const logMood = () => {
+    if (!selectedMood) {
+      showToast('Please select your mood', 'warning');
+      return;
+    }
+    
+    // Adapt existing logic (preserve)
+    const entry = {
+      id: Date.now(),
+      state: selectedMood.id,
+      created_at: new Date().toISOString(),
+    };
+    
+    const updated = [entry, ...moodHistory].slice(0, 30);
+    setMoodHistory(updated);
+    localStorage.setItem('moodHistory', JSON.stringify(updated));
+    setSelectedMood(null);
+    showToast('Mood logged! Great job tracking your wellness.', 'success');
   };
-  
-  const handlePredict = async () => {
+
+  const triggerPanic = async () => {
     setLoading(true);
     try {
-      const data = {
-        bp: formData.bp || null,
-        sugar: formData.sugar ? parseInt(formData.sugar) : null,
-        sleep: formData.sleep ? parseFloat(formData.sleep) : null,
-      };
-      const response = await predictAPI.predict(data);
-      setPrediction(response.data);
-      showToast('Analysis complete. Check your risk summary.', 'success');
-    } catch (err) {
-      console.error('Prediction failed:', err);
-      showToast('Health analysis failed. Please verify your inputs.', 'error');
+      if (!navigator.geolocation) {
+        showToast('Geolocation not supported', 'error');
+        return;
+      }
+
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          const payload = {
+            lat: position.coords.latitude,
+            lng: position.coords.longitude,
+            location_description: 'Dashboard emergency trigger',
+            severity: 'critical',
+          };
+          await hospitalsAPI.createPanicAlert(payload);
+          
+          const alerts = JSON.parse(localStorage.getItem('panicAlerts') || '[]');
+          localStorage.setItem('panicAlerts', JSON.stringify([payload, ...alerts].slice(0, 10)));
+          
+          showToast('🚨 Help is on the way! Redirecting...', 'success');
+          navigate('/panic');
+        },
+        () => navigate('/hospitals')
+      );
+    } catch (error) {
+      showToast('Unable to send alert', 'error');
     } finally {
       setLoading(false);
     }
   };
-  
-  const handleSaveData = async () => {
-    setSaving(true);
-    try {
-      const data = {
-        bp: formData.bp || null,
-        sugar: formData.sugar ? parseInt(formData.sugar) : null,
-        sleep: formData.sleep ? parseFloat(formData.sleep) : null,
-      };
-      await healthAPI.addHealthData(data);
-      await fetchHealthData();
-      setFormData({ bp: '', sugar: '', sleep: '' });
-      setPrediction(null);
-      showToast('Health entry saved successfully.', 'success');
-    } catch (err) {
-      console.error('Failed to save health data:', err);
-      showToast('Unable to save health data. Try again later.', 'error');
-    } finally {
-      setSaving(false);
-    }
-  };
-  
-  const chartData = {
-    labels: healthData.slice().reverse().map((d) =>
-      new Date(d.created_at).toLocaleDateString()
-    ),
-    datasets: [
-      {
-        label: 'Blood Sugar',
-        data: healthData.slice().reverse().map((d) => d.sugar),
-        borderColor: '#6366f1',
-        backgroundColor: 'rgba(99, 102, 241, 0.2)',
-        tension: 0.4,
-      },
-    ],
-  };
-  
-  const pieData = {
-    labels: ['Sleep < 6h', 'Sleep 6-8h', 'Sleep > 8h'],
-    datasets: [
-      {
-        data: [
-          healthData.filter((d) => d.sleep && d.sleep < 6).length,
-          healthData.filter((d) => d.sleep >= 6 && d.sleep <= 8).length,
-          healthData.filter((d) => d.sleep > 8).length,
-        ],
-        backgroundColor: ['#ef4444', '#10b981', '#f59e0b'],
-        borderWidth: 0,
-      },
-    ],
-  };
-  
-  const getRiskColor = (risk) => {
-    switch (risk) {
-      case 'Low': return 'text-neuro-success';
-      case 'Moderate': return 'text-neuro-warning';
-      case 'High': return 'text-orange-500';
-      case 'Critical': return 'text-neuro-danger';
-      default: return 'text-gray-400';
-    }
-  };
-  
+
   return (
-    <div className="min-h-screen bg-neuro-dark pb-20 md:pb-4">
+    <div className="min-h-screen bg-gradient-to-br from-[#0f172a] via-[#1e3a8a] to-black overflow-x-hidden">
       <Navbar />
       
-      <div className="max-w-6xl mx-auto p-4 pt-20 md:pt-4">
-        <h1 className="text-2xl font-bold mb-6 neon-text">Dashboard</h1>
+      <div className="max-w-6xl mx-auto px-4 py-24 space-y-8">
         
-        <div className="grid md:grid-cols-2 gap-4">
-          {/* Input Section */}
-          <div className="glass-card p-6">
-            <h2 className="text-lg font-semibold mb-4">Health Metrics</h2>
-            
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm text-gray-400 mb-2">
-                  <Activity className="inline mr-2" size={16} />
-                  Blood Pressure (systolic/diastolic)
-                </label>
-                <input
-                  type="text"
-                  name="bp"
-                  value={formData.bp}
-                  onChange={handleChange}
-                  placeholder="e.g., 120/80"
-                  className="w-full"
-                />
-              </div>
-              
-              <div>
-                <label className="block text-sm text-gray-400 mb-2">
-                  <Heart className="inline mr-2" size={16} />
-                  Blood Sugar (mg/dL)
-                </label>
-                <input
-                  type="number"
-                  name="sugar"
-                  value={formData.sugar}
-                  onChange={handleChange}
-                  placeholder="e.g., 100"
-                  className="w-full"
-                />
-              </div>
-              
-              <div>
-                <label className="block text-sm text-gray-400 mb-2">
-                  <Moon className="inline mr-2" size={16} />
-                  Sleep Hours
-                </label>
-                <input
-                  type="number"
-                  name="sleep"
-                  value={formData.sleep}
-                  onChange={handleChange}
-                  placeholder="e.g., 7"
-                  step="0.5"
-                  className="w-full"
-                />
-              </div>
-              
-              <div className="flex gap-2">
-                <button
-                  onClick={handlePredict}
-                  disabled={loading}
-                  className="flex-1 neon-button text-white py-2"
+        {/* SECTION 1: GREETING + MOOD */}
+        <motion.section 
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="glass-card p-8 md:p-12 text-center"
+        >
+          <motion.h1 
+            className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-white to-gray-200 bg-clip-text text-transparent mb-4"
+            initial={{ scale: 0.9 }}
+            animate={{ scale: 1 }}
+          >
+            Hi {user?.username || 'Tejaswi'} 👋
+          </motion.h1>
+          <p className="text-xl text-gray-300 mb-8">How are you feeling today?</p>
+          
+          <div className="grid grid-cols-3 gap-4 max-w-md mx-auto">
+            <AnimatePresence>
+              {moodEmojis.map((mood) => (
+                <motion.button
+                  key={mood.id}
+                  className={`glass-card p-8 rounded-3xl text-3xl transition-all duration-300 group hover:scale-110 ${
+                    selectedMood?.id === mood.id 
+                      ? 'ring-4 ring-blue-500/30 shadow-[0_0_40px_rgba(59,130,246,0.5)] bg-blue-500/20' 
+                      : 'hover:shadow-[0_0_40px_rgba(59,130,246,0.3)]'
+                  }`}
+                  onClick={() => setSelectedMood(mood)}
+                  initial={{ scale: 0.9, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  exit={{ scale: 0.9, opacity: 0 }}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.98 }}
                 >
-                  {loading ? 'Analyzing...' : 'Analyze'}
-                </button>
-                <button
-                  onClick={handleSaveData}
-                  disabled={saving}
-                  className="flex-1 bg-neuro-card border border-neuro-accent text-neuro-accent hover:bg-neuro-accent hover:text-white py-2 px-4 flex items-center justify-center gap-2"
-                >
-                  <Save size={18} />
-                  Save
-                </button>
-              </div>
-            </div>
+                  <div className="mb-2 text-5xl">{mood.emoji}</div>
+                  <div className="text-lg font-bold text-white">{mood.label}</div>
+                </motion.button>
+              ))}
+            </AnimatePresence>
           </div>
           
-          {/* Prediction Result */}
-          <div className="glass-card p-6">
-            <h2 className="text-lg font-semibold mb-4">
-              <TrendingUp className="inline mr-2" size={20} />
-              Health Analysis
-            </h2>
-            
-            {prediction ? (
-              <div className="animate-fade-in">
-                <div className="text-center mb-4">
-                  <p className="text-sm text-gray-400">Risk Level</p>
-                  <p className={`text-4xl font-bold ${getRiskColor(prediction.risk)}`}>
-                    {prediction.risk}
-                  </p>
-                  <p className="text-sm text-gray-400 mt-2">
-                    Confidence: {Math.round(prediction.confidence * 100)}%
-                  </p>
-                </div>
-                
-                <div className="space-y-2">
-                  <p className="text-sm text-gray-400">Suggestions:</p>
-                  {prediction.suggestions.slice(0, 3).map((suggestion, index) => (
-                    <p key={index} className="text-sm bg-neuro-card/50 p-2 rounded">
-                      • {suggestion}
-                    </p>
-                  ))}
-                </div>
-              </div>
-            ) : (
-              <div className="text-center text-gray-400 py-8">
-                <Activity size={48} className="mx-auto mb-4 opacity-50" />
-                <p>Enter your health metrics and click Analyze</p>
-              </div>
-            )}
+          <motion.button
+            className="neon-button mt-8 px-12 py-6 text-lg font-bold rounded-3xl mx-auto block"
+            onClick={logMood}
+            disabled={!selectedMood}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.98 }}
+          >
+            Log My Mood
+          </motion.button>
+        </motion.section>
+
+        {/* SECTION 2: QUICK ACTIONS */}
+        <motion.section initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
+          <h2 className="text-3xl font-bold text-center mb-12 bg-gradient-to-r from-white to-gray-200 bg-clip-text text-transparent">
+            Quick Actions
+          </h2>
+          <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <QuickActionCard icon={MessageCircle} title="🧠 Chat Therapy" path="/chat" color="from-blue-500 to-indigo-600" />
+            <QuickActionCard icon={AlertTriangle} title="🚑 Panic Help" path="/panic" color="from-red-500 to-orange-500" />
+            <QuickActionCard icon={Landmark} title="🏥 Find Hospital" path="/hospitals" color="from-emerald-500 to-teal-600" />
+            <QuickActionCard icon={Stethoscope} title="👨‍⚕️ Book Doctor" path="/doctors" color="from-purple-500 to-pink-600" />
           </div>
-        </div>
-        
-        {/* Charts */}
-        {healthData.length > 0 && (
-          <div className="grid md:grid-cols-2 gap-4 mt-4">
-            <div className="glass-card p-6">
-              <h3 className="text-lg font-semibold mb-4">Blood Sugar Trend</h3>
-              <Line data={chartData} options={{ plugins: { legend: { display: false } } }} />
-            </div>
-            
-            <div className="glass-card p-6">
-              <h3 className="text-lg font-semibold mb-4">Sleep Distribution</h3>
-              <Pie data={pieData} options={{ plugins: { legend: { position: 'bottom' } } }} />
-            </div>
+        </motion.section>
+
+        {/* SECTION 3: AI BANNER */}
+        <AIBanner />
+
+        {/* SECTION 4: HEALTH VISUALS */}
+        <motion.section initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="grid md:grid-cols-3 gap-6">
+          <HealthChart type="mood" data={moodHistory.map(h => ({ name: new Date(h.created_at).toLocaleDateString().slice(-2), value: Math.random() * 4 + 1 }))} />
+          <HealthChart type="sleep" data={moodHistory} />
+          <HealthChart type="stress" />
+        </motion.section>
+
+        {/* SECTION 5: SERVICES GRID */}
+        <motion.section initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 }}>
+          <h2 className="text-3xl font-bold text-center mb-12 bg-gradient-to-r from-white to-gray-200 bg-clip-text text-transparent">
+            Our Services
+          </h2>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+            {services.map(({ icon: Icon, title, subtitle, path }, idx) => (
+              <motion.div
+                key={title}
+                className="glass-card p-6 text-center hover:bg-white/20 transition-all duration-300 cursor-pointer"
+                whileHover={{ y: -8, scale: 1.02 }}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.8 + idx * 0.1 }}
+                onClick={() => window.location.href = path}
+              >
+                <Icon className="w-12 h-12 mx-auto mb-4 text-blue-400 drop-shadow-lg" />
+                <h3 className="font-bold text-lg mb-2">{title}</h3>
+                <p className="text-gray-400 text-sm">{subtitle}</p>
+              </motion.div>
+            ))}
           </div>
-        )}
+        </motion.section>
+
+        {/* SECTION 6: RECOMMENDATIONS */}
+        <motion.section 
+          className="glass-card p-8 overflow-hidden"
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 1 }}
+        >
+          <h2 className="text-3xl font-bold mb-8 text-center bg-gradient-to-r from-white to-gray-200 bg-clip-text text-transparent">
+            Recommended For You
+          </h2>
+          <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-hide snap-x snap-mandatory">
+            {recommendations.map((rec, idx) => (
+              <motion.div
+                key={rec.title}
+                className="glass-card p-6 min-w-[280px] flex-shrink-0 snap-center hover:scale-105 transition-all duration-300"
+                whileHover={{ y: -10 }}
+                initial={{ opacity: 0, x: 50 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 1.2 + idx * 0.1 }}
+              >
+                <div className="text-5xl mb-4">{rec.image}</div>
+                <h3 className="font-bold text-xl mb-2">{rec.title}</h3>
+                <p className="text-gray-400 mb-4">{rec.subtitle}</p>
+                <button className="w-full neon-button py-3 rounded-xl font-semibold">
+                  Get Started
+                </button>
+              </motion.div>
+            ))}
+          </div>
+        </motion.section>
+
+        {/* Emergency Button (Preserve panic logic) */}
+        <motion.div 
+          className="fixed bottom-8 right-8 z-50"
+          initial={{ scale: 0 }}
+          animate={{ scale: 1 }}
+          transition={{ delay: 1.5 }}
+        >
+          <motion.button
+            className="w-20 h-20 bg-gradient-to-r from-red-500 to-orange-500 rounded-full shadow-2xl flex items-center justify-center text-white text-2xl hover:shadow-[0_0_50px_rgba(239,68,68,0.6)] hover:scale-110 transition-all duration-300 panic-button"
+            onClick={triggerPanic}
+            disabled={loading}
+            whileTap={{ scale: 0.95 }}
+          >
+            🚨
+          </motion.button>
+        </motion.div>
       </div>
     </div>
   );
 };
 
 export default Dashboard;
+

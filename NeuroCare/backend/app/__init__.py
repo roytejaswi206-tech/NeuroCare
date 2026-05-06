@@ -2,8 +2,8 @@ import os
 from flask import Flask, jsonify
 from flask_cors import CORS
 from app.config import Config
-from app.extensions import db, jwt, migrate
-from app.routes import auth_bp, health_bp, predict_bp, chat_bp, hospitals_bp
+from app.extensions import db, jwt, migrate, mail
+from app.routes import auth_bp, health_bp, predict_bp, chat_bp, hospitals_bp, places_bp, admin_bp, appointments_bp
 from app.utils.logger import logger
 from app.models.hospital import Hospital
 from app.models.doctor import Doctor
@@ -121,6 +121,7 @@ def create_app(config_class=Config):
     db.init_app(app)
     migrate.init_app(app, db)
     jwt.init_app(app)
+    mail.init_app(app)
     
     # Enable CORS
     CORS(app, resources={r"/api/*": {"origins": "*"}})
@@ -131,12 +132,15 @@ def create_app(config_class=Config):
     app.register_blueprint(predict_bp)
     app.register_blueprint(chat_bp)
     app.register_blueprint(hospitals_bp)
+    app.register_blueprint(places_bp)
+    app.register_blueprint(admin_bp)
+    app.register_blueprint(appointments_bp)
     
     # Health check route
     @app.route('/api/health')
     def health_check():
         return jsonify({
-            'status': 'ok',
+            'status': 'healthy',
             'message': 'NeuroCare API is running'
         }), 200
     

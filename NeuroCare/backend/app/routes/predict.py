@@ -13,6 +13,10 @@ def predict():
     """Predict health risk based on input metrics"""
     try:
         user_id = get_jwt_identity()
+        try:
+            user_id = int(user_id)
+        except (TypeError, ValueError):
+            return jsonify({'error': 'Invalid user identity'}), 401
         data = request.get_json()
         
         if not data:

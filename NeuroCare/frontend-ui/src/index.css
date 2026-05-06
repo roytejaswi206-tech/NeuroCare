@@ -24,30 +24,30 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: var(--neuro-dark);
   color: #ffffff;
-  background-image:
-    radial-gradient(circle at top left, rgba(99, 102, 241, 0.14), transparent 25%),
-    radial-gradient(circle at bottom right, rgba(16, 185, 129, 0.12), transparent 20%),
-    linear-gradient(180deg, #08080f 0%, #05050a 100%);
+  background: linear-gradient(225deg, #0f172a 0%, #1e3a8a 50%, #000000 100%);
 }
 
 #root {
   min-height: 100vh;
+  background: inherit;
 }
 
-/* Glassmorphism Card */
+/* Glassmorphism Card - NeuroCare Spec */
 .glass-card {
-  background: rgba(18, 18, 26, 0.8);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 1rem;
+  background: rgba(255, 255, 255, 0.10);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.20);
+  border-radius: 1.5rem;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
 }
 
 .glass-card:hover {
-  border-color: rgba(99, 102, 241, 0.5);
-  box-shadow: 0 0 30px rgba(99, 102, 241, 0.1);
+  transform: scale(1.05);
+  border-color: rgba(255, 255, 255, 0.4);
+  box-shadow: 0 0 40px rgba(59, 130, 246, 0.3), 0 20px 40px rgba(0, 0, 0, 0.3);
 }
 
 /* Neon Glow Effects */
@@ -224,4 +224,147 @@ button:disabled {
   to {
     transform: rotate(360deg);
   }
+}
+
+/* Pulse glow animation */
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(99, 102, 241, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 40px rgba(99, 102, 241, 0.8);
+  }
+}
+
+.pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+/* Floating animation */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.float-animation {
+  animation: float 3s ease-in-out infinite;
+}
+
+/* Gradient text */
+.gradient-text {
+  background: linear-gradient(135deg, #6366f1, #8b5cf6, #ec4899);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Glassmorphism button hover */
+.glass-button {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+}
+
+.glass-button:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(99, 102, 241, 0.5);
+  box-shadow: 0 0 30px rgba(99, 102, 241, 0.2);
+}
+
+/* Pulse button for panic mode */
+.panic-button {
+  background: linear-gradient(135deg, #ef4444, #f97316);
+  animation: panic-pulse 1s ease-in-out infinite;
+}
+
+@keyframes panic-pulse {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 0 20px rgba(239, 68, 68, 0.4);
+  }
+  50% {
+    transform: scale(1.05);
+    box-shadow: 0 0 40px rgba(239, 68, 68, 0.6);
+  }
+}
+
+/* Glowing border */
+.glow-border {
+  position: relative;
+}
+
+.glow-border::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  background: linear-gradient(135deg, #6366f1, #8b5cf6, #ec4899);
+  z-index: -1;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.glow-border:hover::before {
+  opacity: 1;
+}
+
+/* Smooth transitions */
+.smooth-transition {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Background animated gradient */
+.animated-gradient {
+  background: linear-gradient(-45deg, #0a0a0f, #1a1a2e, #16213e, #0f0f1a);
+  background-size: 400% 400%;
+  animation: gradient-shift 15s ease infinite;
+}
+
+@keyframes gradient-shift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* Modal overlay */
+.modal-overlay {
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(5px);
+}
+
+/* Safe area padding for mobile */
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom, 1rem);
+}
+
+/* Status indicator */
+.status-indicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.status-online {
+  background: #10b981;
+  box-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
+}
+
+.status-offline {
+  background: #ef4444;
+}
+
+.status-busy {
+  background: #f59e0b;
+  box-shadow: 0 0 10px rgba(245, 158, 11, 0.5);
 }

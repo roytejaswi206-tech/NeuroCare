@@ -14,6 +14,10 @@ def add_health_data():
     """Add health data entry for current user"""
     try:
         user_id = get_jwt_identity()
+        try:
+            user_id = int(user_id)
+        except (TypeError, ValueError):
+            return jsonify({'error': 'Invalid user identity'}), 401
         data = request.get_json()
         
         if not data:
@@ -73,6 +77,10 @@ def get_health_data():
     """Get health data for current user"""
     try:
         user_id = get_jwt_identity()
+        try:
+            user_id = int(user_id)
+        except (TypeError, ValueError):
+            return jsonify({'error': 'Invalid user identity'}), 401
         limit = request.args.get('limit', 30, type=int)
         offset = request.args.get('offset', 0, type=int)
         
@@ -96,6 +104,10 @@ def delete_health_data(data_id):
     """Delete a health data entry"""
     try:
         user_id = get_jwt_identity()
+        try:
+            user_id = int(user_id)
+        except (TypeError, ValueError):
+            return jsonify({'error': 'Invalid user identity'}), 401
         health_data = HealthData.query.filter_by(id=data_id, user_id=user_id).first()
         
         if not health_data:
@@ -119,6 +131,10 @@ def get_latest_health_data():
     """Get latest health data entry"""
     try:
         user_id = get_jwt_identity()
+        try:
+            user_id = int(user_id)
+        except (TypeError, ValueError):
+            return jsonify({'error': 'Invalid user identity'}), 401
         health_data = HealthData.query.filter_by(user_id=user_id).order_by(
             HealthData.created_at.desc()
         ).first()
@@ -139,6 +155,10 @@ def get_health_stats():
     """Get health statistics for current user"""
     try:
         user_id = get_jwt_identity()
+        try:
+            user_id = int(user_id)
+        except (TypeError, ValueError):
+            return jsonify({'error': 'Invalid user identity'}), 401
         health_data = HealthData.query.filter_by(user_id=user_id).order_by(
             HealthData.created_at.desc()
         ).limit(30).all()

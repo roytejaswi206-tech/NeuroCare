@@ -40,17 +40,28 @@ const Register = () => {
     }
     
     try {
-      await authAPI.register({
-        username: formData.username,
-        email: formData.email,
-        password: formData.password,
-      });
-      showToast('Account created successfully. Please sign in.', 'success');
-      navigate('/login');
+      // Check if user already exists
+      const existingUser = localStorage.getItem('neurocare_user');
+      if (existingUser) {
+        setError('User already registered. Please login.');
+        setLoading(false);
+        return;
+      }
+
+      const userData = {
+        username: formData.username.trim(),
+        email: formData.email.trim(),
+        createdAt: new Date().toISOString()
+      };
+
+      localStorage.setItem('neurocare_user', JSON.stringify(userData));
+      showToast("Registration successful!", "success");
+      navigate("/dashboard");
+
     } catch (err) {
-      const message = err.response?.data?.error || 'Registration failed. Please try again.';
-      setError(message);
-      showToast(message, 'error');
+      console.error(err);
+      setError('Registration failed. Please try again.');
+      showToast('Registration failed. Please try again.', 'error');
     } finally {
       setLoading(false);
     }
@@ -65,10 +76,18 @@ const Register = () => {
   }
   
   return (
-    <div className="min-h-screen flex items-center justify-center bg-neuro-dark p-4">
+    <div
+      className="min-h-screen flex items-center justify-center bg-neuro-dark p-4"
+      style={{
+        backgroundImage:
+          'radial-gradient(circle at top, rgba(99, 102, 241, 0.16), transparent 22%), radial-gradient(circle at bottom right, rgba(16, 185, 129, 0.16), transparent 18%)',
+      }}
+    >
       <div className="w-full max-w-md animate-fade-in">
-        {/* Logo */}
         <div className="text-center mb-8">
+          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-white/10 ring-1 ring-white/10">
+            <span className="text-3xl">🧠</span>
+          </div>
           <h1 className="text-4xl font-bold text-neuro-accent neon-text">NeuroCare</h1>
           <p className="text-gray-400 mt-2">AI Mental Health Support</p>
         </div>

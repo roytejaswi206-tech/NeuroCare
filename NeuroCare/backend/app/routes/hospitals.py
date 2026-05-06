@@ -1,8 +1,10 @@
 from flask import Blueprint, request, jsonify
-from flask_jwt_extended import jwt_required
+from flask_jwt_extended import jwt_required, get_jwt_identity
 from app.extensions import db
 from app.models.hospital import Hospital
 from app.models.doctor import Doctor
+from app.models.user import User
+from app.models.panic_alert import PanicAlert
 from app.utils.logger import logger
 import math
 
@@ -33,11 +35,11 @@ def get_hospitals():
         lng = request.args.get('lng', type=float)
         radius = request.args.get('radius', 50, type=float)  # Default 50km radius
         
-        if lat is None or lng is None:
-            return jsonify({'error': 'Latitude and longitude are required'}), 400
-        
-        # Get all hospitals
         hospitals = Hospital.query.all()
+
+        if lat is None or lng is None:
+            hospital_list = [hospital.to_dict() for hospital in hospitals]
+            return jsonify({'hospitals': hospital_list, 'count': len(hospital_list)}), 200
         
         # Filter by distance
         nearby_hospitals = []
@@ -122,7 +124,13 @@ def get_all_doctors():
         doctors = query.all()
         
         return jsonify({
-            'doctors': [doc.to_dict() for doc in doctors],
+            'doctors': [
+                {
+                    **doc.to_dict(),
+                    'hospital': doc.hospital.to_dict() if doc.hospital else None
+                }
+                for doc in doctors
+            ],
             'count': len(doctors)
         }), 200
     
@@ -153,6 +161,39 @@ def search_hospitals():
     except Exception as e:
         logger.error(f"Search hospitals error: {str(e)}")
         return jsonify({'error': 'Failed to search hospitals'}), 500
+
+
+@hospitals_bp.route('/panic', methods=['POST'])
+@jwt_required()
+def create_panic_alert():
+    """Create a panic alert from the user"""
+    try:
+        user_id = get_jwt_identity()
+        try:
+            user_id = int(user_id)
+        except (TypeError, ValueError):
+            return jsonify({'error': 'Invalid user identity'}), 401
+
+        user = User.query.get(user_id)
+        if not user:
+            return jsonify({'error': 'User not found'}), 404
+
+        data = request.get_json() or {}
+        panic_alert = PanicAlert(
+            user_id=user.id,
+            lat=data.get('lat'),
+            lng=data.get('lng'),
+            location_description=data.get('location_description'),
+            severity=data.get('severity', 'medium'),
+            notes=data.get('notes')
+        )
+        db.session.add(panic_alert)
+        db.session.commit()
+
+        return jsonify({'panic_alert': panic_alert.to_dict()}), 201
+    except Exception as e:
+        logger.error(f"Create panic alert error: {str(e)}")
+        return jsonify({'error': 'Failed to create panic alert'}), 500
 
 
 # Admin routes (can be protected in production)

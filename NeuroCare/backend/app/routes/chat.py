@@ -1,6 +1,9 @@
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from app.ml.predictor import get_chat_response
+from app.ai_service import get_ai_response
+from app.extensions import db
+from app.models.user import User
+from app.models.chat_log import ChatLog
 from app.utils.logger import logger
 
 chat_bp = Blueprint('chat', __name__, url_prefix='/api/chat')
@@ -12,6 +15,10 @@ def chat():
     """Get AI chat response for mental health support"""
     try:
         user_id = get_jwt_identity()
+        try:
+            user_id = int(user_id)
+        except (TypeError, ValueError):
+            return jsonify({'error': 'Invalid user identity'}), 401
         data = request.get_json()
         
         if not data:
@@ -22,8 +29,20 @@ def chat():
         if not message:
             return jsonify({'error': 'Message is required'}), 400
         
-        # Get response from predictor
-        response = get_chat_response(message)
+        # Get response from AI service
+        response = get_ai_response(message)
+
+        # Log chat interaction for monitoring
+        keywords = [kw for kw in ['panic', 'anxiety', 'suicide'] if kw in message.lower()]
+        chat_log = ChatLog(
+            user_id=user_id,
+            message=message,
+            response_type=response.get('type'),
+            flagged=bool(keywords),
+            keywords=', '.join(keywords)
+        )
+        db.session.add(chat_log)
+        db.session.commit()
         
         logger.info(f"Chat response for user {user_id}: {response.get('type', 'general')}")
         
