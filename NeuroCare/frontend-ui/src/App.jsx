@@ -12,6 +12,9 @@ import Appointments from './pages/Appointments';
 import Favorites from './pages/Favorites';
 import Settings from './pages/Settings';
 import AdminDashboard from './pages/AdminDashboard';
+import Breathing from './pages/Breathing';
+import Journal from './pages/Journal';
+import Sleep from './pages/Sleep';
 import { ToastProvider } from './components/ToastContext';
 import { TranslationProvider } from './i18n.jsx';
 import ErrorBoundary from './components/ErrorBoundary';
@@ -97,6 +100,32 @@ const App = () => {
                 element={
                   <ProtectedRoute roles={[ 'super_admin' ]}>
                     <AdminDashboard />
+                  </ProtectedRoute>
+                }
+              />
+
+              {/* Wellness Routes */}
+              <Route
+                path="/breathing"
+                element={
+                  <ProtectedRoute>
+                    <Breathing />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/journal"
+                element={
+                  <ProtectedRoute>
+                    <Journal />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/sleep"
+                element={
+                  <ProtectedRoute>
+                    <Sleep />
                   </ProtectedRoute>
                 }
               />
