@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react';
+ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getCurrentUser, logoutUser, getDoctors, getHospitals } from '../utils/storage';
+import StatCard from '../components/StatCard';
 
 const Dashboard = () => {
   const [user, setUser] = useState(null);
@@ -305,15 +306,6 @@ const Dashboard = () => {
     </div>
   );
 };
-
-// Stat Card Component
-const StatCard = ({ label, value, icon }) => (
-  <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-xl p-4">
-    <span className="text-xl mb-1 block">{icon}</span>
-    <p className="text-[var(--text-muted)] text-xs">{label}</p>
-    <p className="text-xl font-semibold text-[var(--text-main)]">{value}</p>
-  </div>
-);
 
 // Quick Action Button
 const QuickAction = ({ icon, label }) => (
