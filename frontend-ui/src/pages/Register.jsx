@@ -21,7 +21,6 @@ const Register = () => {
   useEffect(() => {
     initializeSampleData();
     
-    // Only redirect if already logged in AND no users array exists (first time user)
     const users = localStorage.getItem('neurocare_users');
     if (isLoggedIn() && !users) {
       navigate('/dashboard');
@@ -98,7 +97,6 @@ const Register = () => {
       });
 
       if (result.success) {
-        // Don't auto-login, redirect to login page
         navigate('/login', { 
           state: { registered: true, email: formData.email } 
         });
@@ -120,46 +118,46 @@ const Register = () => {
   // Step 1: Role Selection
   if (step === 1) {
     return (
-      <div className="min-h-screen bg-[var(--bg-primary)] flex items-center justify-center p-4">
+      <div className="min-h-screen bg-bg-primary flex items-center justify-center p-4">
         <div className="w-full max-w-md fade-in">
           {/* Logo */}
-          <div className="text-center mb-8">
+          <div className="text-center mb-6 sm:mb-8">
             <div className="inline-flex items-center gap-3">
-              <div className="w-12 h-12 rounded-xl bg-[var(--primary)] flex items-center justify-center shadow-lg shadow-[var(--primary)]/20">
+              <div className="w-12 h-12 rounded-xl bg-primary flex items-center justify-center shadow-primary">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2z"/>
                   <path d="M12 6v6l4 2"/>
                 </svg>
               </div>
-              <span className="text-2xl font-bold text-[var(--text-main)]">NeuroCare</span>
+              <span className="text-2xl font-bold text-text-main">NeuroCare</span>
             </div>
           </div>
 
           {/* Form Card */}
-          <div className="card p-8">
-            <h1 className="text-2xl font-bold text-[var(--text-main)] mb-2 text-center">
+          <div className="card p-6 sm:p-8">
+            <h1 className="text-xl sm:text-2xl font-bold text-text-main mb-2 text-center">
               Create your account
             </h1>
-            <p className="text-[var(--text-muted)] text-sm text-center mb-6">
+            <p className="text-text-muted text-sm text-center mb-6">
               Choose how you'll use NeuroCare
             </p>
 
-            <div className="space-y-4">
+            <div className="space-y-3 sm:space-y-4">
               <button
                 type="button"
                 onClick={() => selectRole('patient')}
-                className="w-full p-6 border-2 border-[var(--border)] rounded-xl hover:border-[var(--primary)] transition-all text-left group"
+                className="w-full p-4 sm:p-5 border-2 border-border rounded-xl hover:border-primary hover:shadow-md transition-all text-left group active:scale-[0.98]"
               >
                 <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-xl bg-[var(--primary)]/10 flex items-center justify-center group-hover:bg-[var(--primary)]/20 transition-colors">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <div className="w-12 h-12 rounded-xl bg-primary-light flex items-center justify-center flex-shrink-0 group-hover:bg-primary/20 transition-colors">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00BFA6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                       <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
                       <circle cx="12" cy="7" r="4"/>
                     </svg>
                   </div>
-                  <div>
-                    <h3 className="font-semibold text-[var(--text-main)]">Patient</h3>
-                    <p className="text-sm text-[var(--text-muted)]">Seek mental health support and track your wellbeing</p>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-semibold text-text-main">Patient</h3>
+                    <p className="text-sm text-text-muted">Seek mental health support and track your wellbeing</p>
                   </div>
                 </div>
               </button>
@@ -167,28 +165,28 @@ const Register = () => {
               <button
                 type="button"
                 onClick={() => selectRole('doctor')}
-                className="w-full p-6 border-2 border-[var(--border)] rounded-xl hover:border-[var(--primary)] transition-all text-left group"
+                className="w-full p-4 sm:p-5 border-2 border-border rounded-xl hover:border-accent hover:shadow-md transition-all text-left group active:scale-[0.98]"
               >
                 <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-xl bg-[var(--accent)]/10 flex items-center justify-center group-hover:bg-[var(--accent)]/20 transition-colors">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <div className="w-12 h-12 rounded-xl bg-accent-light flex items-center justify-center flex-shrink-0 group-hover:bg-accent/20 transition-colors">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#6C63FF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                       <path d="M4.8 2.3A.3.3 0 0 0 5 2h14a.3.3 0 0 1 .3.3v19.4a.3.3 0 0 1-.3.3H5a.3.3 0 0 1-.3-.3V2.3z"/>
                       <path d="M12 8v8"/>
                       <path d="M8 12h8"/>
                     </svg>
                   </div>
-                  <div>
-                    <h3 className="font-semibold text-[var(--text-main)]">Doctor</h3>
-                    <p className="text-sm text-[var(--text-muted)]">Provide care and manage patient appointments</p>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-semibold text-text-main">Doctor</h3>
+                    <p className="text-sm text-text-muted">Provide care and manage patient appointments</p>
                   </div>
                 </div>
               </button>
             </div>
 
-            <div className="mt-6 pt-6 border-t border-[var(--border)]">
-              <p className="text-[var(--text-muted)] text-sm text-center">
+            <div className="mt-6 pt-6 border-t border-border">
+              <p className="text-text-muted text-sm text-center">
                 Already have an account?{' '}
-                <Link to="/login" className="text-[var(--primary)] hover:text-[var(--primary-dark)] font-medium">
+                <Link to="/login" className="text-primary hover:text-primary-dark font-medium">
                   Sign in
                 </Link>
               </p>
@@ -201,28 +199,28 @@ const Register = () => {
 
   // Step 2: Registration Form
   return (
-    <div className="min-h-screen bg-[var(--bg-primary)] flex items-center justify-center p-4">
+    <div className="min-h-screen bg-bg-primary flex items-center justify-center p-4">
       <div className="w-full max-w-md fade-in">
         {/* Logo */}
-        <div className="text-center mb-6">
+        <div className="text-center mb-4 sm:mb-6">
           <div className="inline-flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-[var(--primary)] flex items-center justify-center">
+            <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2z"/>
                 <path d="M12 6v6l4 2"/>
               </svg>
             </div>
-            <span className="text-xl font-bold text-[var(--text-main)]">NeuroCare</span>
+            <span className="text-xl font-bold text-text-main">NeuroCare</span>
           </div>
         </div>
 
         {/* Form Card */}
-        <div className="card p-8">
+        <div className="card p-6 sm:p-8">
           {/* Back button */}
           <button
             type="button"
             onClick={() => setStep(1)}
-            className="flex items-center gap-2 text-sm text-[var(--text-muted)] hover:text-[var(--text-main)] mb-4"
+            className="flex items-center gap-2 text-sm text-text-muted hover:text-text-main mb-4 transition-colors"
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M19 12H5M12 19l-7-7 7-7"/>
@@ -232,17 +230,17 @@ const Register = () => {
 
           <div className="mb-6">
             <span className="badge badge-primary capitalize">{formData.role}</span>
-            <h1 className="text-2xl font-bold text-[var(--text-main)] mt-3 mb-2">
+            <h1 className="text-xl sm:text-2xl font-bold text-text-main mt-3 mb-2">
               {formData.role === 'doctor' ? 'Doctor Registration' : 'Patient Registration'}
             </h1>
-            <p className="text-[var(--text-muted)] text-sm">
+            <p className="text-text-muted text-sm">
               Fill in your details to create an account
             </p>
           </div>
 
           <form onSubmit={handleSubmit}>
             {submitError && (
-              <div className="bg-[var(--error)]/10 border border-[var(--error)]/20 text-[var(--error)] text-sm p-3 rounded-lg mb-4">
+              <div className="bg-error-light border border-error/20 text-error text-sm p-3 rounded-lg mb-4 fade-in">
                 {submitError}
               </div>
             )}
@@ -339,10 +337,10 @@ const Register = () => {
             </button>
           </form>
 
-          <div className="mt-6 pt-6 border-t border-[var(--border)]">
-            <p className="text-[var(--text-muted)] text-sm text-center">
+          <div className="mt-6 pt-6 border-t border-border">
+            <p className="text-text-muted text-sm text-center">
               Already have an account?{' '}
-              <Link to="/login" className="text-[var(--primary)] hover:text-[var(--primary-dark)] font-medium">
+              <Link to="/login" className="text-primary hover:text-primary-dark font-medium">
                 Sign in
               </Link>
             </p>

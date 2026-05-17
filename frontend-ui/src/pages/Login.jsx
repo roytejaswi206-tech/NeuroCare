@@ -72,39 +72,39 @@ const Login = () => {
   return (
     <div className="min-h-screen flex">
       {/* Left side - Form */}
-      <div className="w-full lg:w-1/2 flex items-center justify-center p-8 bg-[var(--bg-primary)]">
+      <div className="w-full lg:w-1/2 flex items-center justify-center p-4 sm:p-6 lg:p-8 bg-bg-primary">
         <div className="w-full max-w-md fade-in">
           {/* Logo */}
-          <div className="text-center mb-8">
+          <div className="text-center mb-6 sm:mb-8">
             <div className="inline-flex items-center gap-3">
-              <div className="w-12 h-12 rounded-xl bg-[var(--primary)] flex items-center justify-center shadow-lg shadow-[var(--primary)]/20">
+              <div className="w-12 h-12 rounded-xl bg-primary flex items-center justify-center shadow-primary">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2z"/>
                   <path d="M12 6v6l4 2"/>
                 </svg>
               </div>
-              <span className="text-2xl font-bold text-[var(--text-main)]">NeuroCare</span>
+              <span className="text-2xl font-bold text-text-main">NeuroCare</span>
             </div>
           </div>
 
           {/* Form Card */}
-          <div className="card p-8">
-            <h1 className="text-2xl font-bold text-[var(--text-main)] mb-2 text-center">
+          <div className="card p-6 sm:p-8">
+            <h1 className="text-xl sm:text-2xl font-bold text-text-main mb-2 text-center">
               Welcome back
             </h1>
-            <p className="text-[var(--text-muted)] text-sm text-center mb-6">
+            <p className="text-text-muted text-sm text-center mb-6">
               Sign in to continue your mental health journey
             </p>
 
             <form onSubmit={handleSubmit}>
               {submitError && (
-                <div className="bg-[var(--error)]/10 border border-[var(--error)]/20 text-[var(--error)] text-sm p-3 rounded-lg mb-4">
+                <div className="bg-error-light border border-error/20 text-error text-sm p-3 rounded-lg mb-4 fade-in">
                   {submitError}
                 </div>
               )}
 
               {successMessage && (
-                <div className="bg-[var(--success)]/10 border border-[var(--success)]/20 text-[var(--success)] text-sm p-3 rounded-lg mb-4">
+                <div className="bg-success-light border border-success/20 text-success text-sm p-3 rounded-lg mb-4 fade-in">
                   {successMessage}
                 </div>
               )}
@@ -143,11 +143,11 @@ const Login = () => {
                 <label className="flex items-center gap-2 cursor-pointer">
                   <input 
                     type="checkbox" 
-                    className="w-4 h-4 rounded border-[var(--border)] text-[var(--primary)] focus:ring-[var(--primary)]"
+                    className="w-4 h-4 rounded border-border text-primary focus:ring-primary"
                   />
-                  <span className="text-sm text-[var(--text-muted)]">Remember me</span>
+                  <span className="text-sm text-text-muted">Remember me</span>
                 </label>
-                <a href="#" className="text-sm text-[var(--primary)] hover:text-[var(--primary-dark)] font-medium">
+                <a href="#" className="text-sm text-primary hover:text-primary-dark font-medium">
                   Forgot password?
                 </a>
               </div>
@@ -168,43 +168,72 @@ const Login = () => {
               </button>
             </form>
 
-            <div className="mt-6 pt-6 border-t border-[var(--border)]">
-              <p className="text-[var(--text-muted)] text-sm text-center">
+            <div className="mt-6 pt-6 border-t border-border">
+              <p className="text-text-muted text-sm text-center">
                 Don't have an account?{' '}
-                <Link to="/register" className="text-[var(--primary)] hover:text-[var(--primary-dark)] font-medium">
+                <Link to="/register" className="text-primary hover:text-primary-dark font-medium">
                   Create one
                 </Link>
               </p>
             </div>
           </div>
+
+          {/* Trust indicators */}
+          <div className="mt-6 text-center">
+            <p className="text-text-light text-xs">
+              Trusted by 10,000+ users worldwide
+            </p>
+            <div className="flex items-center justify-center gap-4 mt-3">
+              <div className="flex items-center gap-1 text-text-light text-xs">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                </svg>
+                Secure
+              </div>
+              <div className="flex items-center gap-1 text-text-light text-xs">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                </svg>
+                Private
+              </div>
+              <div className="flex items-center gap-1 text-text-light text-xs">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="12" cy="12" r="10"/>
+                  <polyline points="12 6 12 12 16 14"/>
+                </svg>
+                24/7 Support
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* Right side - Image */}
-      <div className="hidden lg:flex w-1/2 relative">
+      {/* Right side - Image (Desktop only) */}
+      <div className="hidden lg:flex w-1/2 relative overflow-hidden">
         <img 
           src="https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=1200&h=800&fit=crop" 
           alt="Mental health care"
           className="absolute inset-0 w-full h-full object-cover"
         />
-        <div className="absolute inset-0 bg-gradient-to-br from-[var(--primary)]/80 to-[var(--accent)]/80 mix-blend-multiply" />
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/85 to-accent/85 mix-blend-multiply" />
         <div className="relative z-10 flex flex-col justify-center items-center p-12 text-center text-white">
           <h2 className="text-4xl font-bold mb-4">Your Mental Health Matters</h2>
-          <p className="text-lg text-white/90 max-w-md">
+          <p className="text-lg text-white/90 max-w-md mb-8">
             Join thousands of users who are taking control of their mental wellbeing with NeuroCare.
           </p>
-          <div className="mt-8 flex gap-6">
+          <div className="flex gap-8">
             <div className="text-center">
               <div className="text-3xl font-bold">10K+</div>
-              <div className="text-sm text-white/80">Active Users</div>
+              <div className="text-sm text-white/80 mt-1">Active Users</div>
             </div>
             <div className="text-center">
               <div className="text-3xl font-bold">500+</div>
-              <div className="text-sm text-white/80">Expert Doctors</div>
+              <div className="text-sm text-white/80 mt-1">Expert Doctors</div>
             </div>
             <div className="text-center">
               <div className="text-3xl font-bold">24/7</div>
-              <div className="text-sm text-white/80">AI Support</div>
+              <div className="text-sm text-white/80 mt-1">AI Support</div>
             </div>
           </div>
         </div>
