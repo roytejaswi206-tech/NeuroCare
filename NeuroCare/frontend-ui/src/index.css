@@ -1,7 +1,7 @@
+@import './styles/globals.css';
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-@import './styles/globals.css';
 
 :root {
   --neuro-dark: #0a0a0f;
